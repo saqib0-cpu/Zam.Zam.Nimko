@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Login - Zam Zam Nimko</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4362ee83;
+            --primary-dark: #3f37c9;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0; padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(rgba(52, 86, 239, 0.384), rgba(75, 67, 230, 0)),
+                        url("assets/dashboard.images/login.image/back.png");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Floating shapes */
+        .floating-shapes {
+            position: absolute;
+            width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+        .shape:nth-child(1){width:80px;height:80px;top:20%;left:10%;}
+        .shape:nth-child(2){width:120px;height:120px;top:60%;left:80%;}
+        .shape:nth-child(3){width:60px;height:60px;top:80%;left:20%;}
+        .shape:nth-child(4){width:100px;height:100px;top:30%;left:85%;}
+        .shape:nth-child(5){width:70px;height:70px;top:10%;left:70%;}
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+            100% { transform: translateY(0) rotate(360deg); }
+        }
+
+        /* Login container */
+        .login-container {
+            max-width: 350px;
+            width: 100%;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        /* Reduced header height */
+        .login-header {
+            text-align: center;
+            padding: 20px; /* Reduced from 25px */
+            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 20px 20px 0 0;
+        }
+
+        /* Reduced logo size */
+        .brand-logo img {
+            width: 70px; height: 70px; /* Reduced from 90px */
+            border-radius: 50%;
+        }
+
+        /* Reduced header text size */
+        .login-header h2 {
+            font-size: 1.5rem; /* Reduced from default */
+            margin-top: 8px;
+            margin-bottom: 5px;
+        }
+
+        .login-header p {
+            font-size: 0.9rem; /* Reduced from default */
+            margin-bottom: 0;
+        }
+
+        /* Reduced body padding */
+        .login-body { 
+            padding: 20px; /* Reduced from 25px */
+            padding-bottom: 15px; /* Reduced from 20px */
+        }
+
+        /* Form elements */
+        .form-control {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 12px; /* Reduced from 14px */
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.7);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.15);
+        }
+
+        /* Password input group */
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-container input {
+            padding-right: 45px; /* Space for the eye icon */
+            width: 100%;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px; /* Reduced from 14px */
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-login:hover {
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+        }
+
+        .forgot-password {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem; /* Slightly smaller */
+        }
+
+        .footer-text {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+        }
+
+        .alert {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="floating-shapes">
+        <div class="shape"></div><div class="shape"></div>
+        <div class="shape"></div><div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-card">
+
+            <div class="login-header">
+                <div class="brand-logo">
+                    <img src="assets/dashboard.images/login.image/logo.png" alt="Logo">
+                </div>
+                <h2>Zam Zam Nimko</h2>
+                <p>Sign in to your account</p>
+            </div>
+
+            <div class="login-body">
+                <form id="login-form">
+                    <!-- Error message alert -->
+                    <div class="alert alert-danger" id="error-message">
+                        Invalid username or password. Please try again.
+                    </div>
+
+                    <label class="form-label">User Name</label>
+                    <input type="text" id="username" class="form-control mb-3" placeholder="Enter your username" required>
+
+                    <label class="form-label">Password</label>
+                    <div class="password-container mb-3">
+                        <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                        <button type="button" class="toggle-password" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+
+                    <button class="btn btn-login w-100 mb-3" type="submit">Sign In</button>
+
+                    <div class="text-center">
+                        <a href="#" class="forgot-password">Forgot your password?</a>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+
+        
+    </div>
+
+    <script>
+        // Valid credentials (in a real app, this would be handled server-side)
+        const validUsername = "Junaidahmad240";
+        const validPassword = "Tajik143";
+
+        document.getElementById('login-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+            const btn = document.querySelector('.btn-login');
+            
+            // Reset error message
+            errorMessage.style.display = 'none';
+            
+            // Check credentials
+            if (username === validUsername && password === validPassword) {
+                // Show loading state
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Signing In...';
+                btn.disabled = true;
+                
+                // Redirect to dashboard after a short delay
+                setTimeout(() => { 
+                    window.location.href = "dashboard.html"; 
+                }, 1200);
+            } else {
+                // Show error message
+                errorMessage.style.display = 'block';
+                
+                // Add shake animation to form
+                document.querySelector('.login-card').style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    document.querySelector('.login-card').style.animation = '';
+                }, 500);
+            }
+        });
+
+        document.getElementById("togglePassword").onclick = function () {
+            let input = document.getElementById("password");
+            let icon = this.querySelector("i");
+            input.type = input.type === "password" ? "text" : "password";
+            icon.classList.toggle("fa-eye");
+            icon.classList.toggle("fa-eye-slash");
+        };
+
+        // Add shake animation for invalid login
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+
+</body>
+</html>

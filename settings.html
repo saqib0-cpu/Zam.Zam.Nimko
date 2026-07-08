@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Database Settings - Zam Zam Nimko</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            --secondary: #7209b7;
+            --success: #4cc9f0;
+            --info: #4895ef;
+            --warning: #f72585;
+            --danger: #e63946;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --sidebar-width: 240px;
+            --header-height: 70px;
+            --card-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7ff 0%, #f0f4ff 100%);
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+        
+        .sidebar-header {
+            padding: 20px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .sidebar-header h3 {
+            margin: 0;
+            font-weight: 700;
+            color: white;
+            font-size: 1.3rem;
+        }
+        
+        .sidebar-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            backdrop-filter: blur(3px);
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .toggle-sidebar {
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+        
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+        
+        .sidebar-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: rgba(255, 255, 255, 0.5);
+            padding-left: 25px;
+        }
+        
+        .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left-color: #4cc9f0;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 25px;
+            transition: var(--transition);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .header h1 {
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin: 0;
+            font-size: 1.8rem;
+            position: relative;
+        }
+        
+        .header h1:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: var(--card-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            background: white;
+            margin-bottom: 30px;
+        }
+        
+        .card-header {
+            background: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h5 {
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0;
+            font-size: 1.1rem;
+        }
+        
+        .card-body {
+            padding: 25px;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+            border-color: var(--primary);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .env-toggle {
+            display: flex;
+            background: #f0f4ff;
+            padding: 5px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .env-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #666;
+            transition: var(--transition);
+        }
+        
+        .env-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-connected { background: #e6fffa; color: #38a169; }
+        .status-disconnected { background: #fff5f5; color: #e53e3e; }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .notification.show { transform: translateX(0); }
+        .notification.success { border-left: 5px solid var(--success); }
+        .notification.error { border-left: 5px solid var(--danger); }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay"></div>
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/dashboard.images/login.image/logo.png" alt="Logo" class="sidebar-logo">
+                <h3>Zam Zam Nimko</h3>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="invoice.html"><i class="fas fa-file-invoice"></i> Invoices</a></li>
+                    <li><a href="data-flow.html"><i class="fas fa-exchange-alt"></i> Data Flow</a></li>
+                    <li><a href="product-entry.html"><i class="fas fa-boxes"></i> Product Entry</a></li>
+                    <li><a href="dues.html"><i class="fas fa-money-check-alt"></i> Dues</a></li>
+                    <li><a href="expiry.html"><i class="fas fa-hourglass-end"></i> Expiry</a></li>
+                    <li><a href="statement.html"><i class="fas fa-chart-bar"></i> Statement</a></li>
+                    <li><a href="loan.html"><i class="fas fa-hand-holding-usd"></i> Loan Management</a></li>
+                    <li><a href="settings.html" class="active"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="index.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>Database Settings</h1>
+            </div>
+
+            <div class="env-toggle">
+                <button class="env-btn active" id="btn-local" onclick="switchEnv('local')">Local Database</button>
+                <button class="env-btn" id="btn-remote" onclick="switchEnv('remote')">Remote Database</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 id="form-title">SQL Server Configuration (Local)</h5>
+                    <div id="connection-status" class="status-badge status-disconnected">
+                        <i class="fas fa-circle"></i> Checking...
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form id="settings-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Server / Instance Name</label>
+                                <input type="text" class="form-control" id="server" placeholder="e.g. Saqib-pc\SQLEXPRESS" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Database Name</label>
+                                <input type="text" class="form-control" id="database" placeholder="e.g. junimkoDB" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Driver</label>
+                                <input type="text" class="form-control" id="driver" value="{ODBC Driver 17 for SQL Server}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Authentication Mode</label>
+                                <select class="form-control" id="authentication" onchange="toggleAuthFields()">
+                                    <option value="windows">Windows Authentication</option>
+                                    <option value="sql">SQL Server Authentication</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="sql-auth-fields" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">User ID (UID)</label>
+                                    <input type="text" class="form-control" id="username" placeholder="Username">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Password (PWD)</label>
+                                    <input type="password" class="form-control" id="password" placeholder="Password">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Save Configuration
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification">
+        <i id="notif-icon" class="fas"></i>
+        <span id="notif-message"></span>
+    </div>
+
+    <script>
+        const API_URL = '/api/settings';
+        let currentConfig = {};
+        let activeEnv = 'local';
+
+        async function loadSettings() {
+            try {
+                const res = await fetch(API_URL);
+                currentConfig = await res.json();
+                activeEnv = currentConfig.active || 'local';
+                updateUI();
+            } catch (err) {
+                showNotification('Could not connect to backend', 'error');
+            }
+        }
+
+        function updateUI() {
+            document.querySelectorAll('.env-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${activeEnv}`).classList.add('active');
+            
+            document.getElementById('form-title').textContent = `SQL Server Configuration (${activeEnv.charAt(0).toUpperCase() + activeEnv.slice(1)})`;
+            
+            const db = currentConfig[activeEnv];
+            document.getElementById('server').value = db.server || '';
+            document.getElementById('database').value = db.database || '';
+            document.getElementById('driver').value = db.driver || '{ODBC Driver 17 for SQL Server}';
+            document.getElementById('authentication').value = db.authentication || 'windows';
+            document.getElementById('username').value = db.username || '';
+            document.getElementById('password').value = db.password || '';
+            
+            toggleAuthFields();
+            checkConnection();
+        }
+
+        function switchEnv(env) {
+            activeEnv = env;
+            // Update UI with existing values for that env without saving yet
+            updateUI();
+        }
+
+        function toggleAuthFields() {
+            const auth = document.getElementById('authentication').value;
+            document.getElementById('sql-auth-fields').style.display = auth === 'sql' ? 'block' : 'none';
+        }
+
+        async function checkConnection() {
+            const statusBox = document.getElementById('connection-status');
+            statusBox.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+            statusBox.className = 'status-badge';
+            
+            try {
+                const res = await fetch('/api/products');
+                if (res.ok) {
+                    statusBox.innerHTML = '<i class="fas fa-check-circle"></i> Connected';
+                    statusBox.className = 'status-badge status-connected';
+                } else {
+                    throw new Error();
+                }
+            } catch (err) {
+                statusBox.innerHTML = '<i class="fas fa-times-circle"></i> Disconnected';
+                statusBox.className = 'status-badge status-disconnected';
+            }
+        }
+
+        document.getElementById('settings-form').onsubmit = async (e) => {
+            e.preventDefault();
+            
+            currentConfig.active = activeEnv;
+            currentConfig[activeEnv] = {
+                server: document.getElementById('server').value,
+                database: document.getElementById('database').value,
+                driver: document.getElementById('driver').value,
+                authentication: document.getElementById('authentication').value,
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(currentConfig)
+                });
+                
+                if (res.ok) {
+                    showNotification('Settings saved & Database switched!', 'success');
+                    checkConnection();
+                } else {
+                    showNotification('Failed to save settings', 'error');
+                }
+            } catch (err) {
+                showNotification('Error connecting to server', 'error');
+            }
+        };
+
+        function showNotification(msg, type) {
+            const notif = document.getElementById('notification');
+            const icon = document.getElementById('notif-icon');
+            const message = document.getElementById('notif-message');
+            
+            notif.className = `notification show ${type}`;
+            icon.className = `fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}`;
+            message.textContent = msg;
+            
+            setTimeout(() => notif.classList.remove('show'), 3000);
+        }
+
+        loadSettings();
+    </script>
+</body>
+</html>

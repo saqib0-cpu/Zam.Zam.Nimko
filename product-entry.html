@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Product Entry - Zam Zam Nimko</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            --secondary: #7209b7;
+            --success: #4cc9f0;
+            --info: #4895ef;
+            --warning: #f72585;
+            --danger: #e63946;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --sidebar-width: 210px;
+            --header-height: 70px;
+            --card-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7ff 0%, #f0f4ff 100%);
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-size: 13px;
+        }
+        
+        /* Dashboard Layout */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+        
+        .sidebar-header {
+            padding: 12px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .sidebar-header h3 {
+            margin: 0;
+            font-weight: 700;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .sidebar-header h3 i {
+            color: #4cc9f0;
+        }
+        
+        /* Logo styling */
+        .sidebar-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .sidebar-menu {
+            padding: 8px 0;
+        }
+        
+        .sidebar-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 2px;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 8px 14px;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+            font-weight: 500;
+            font-size: 0.82rem;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: rgba(255, 255, 255, 0.5);
+            padding-left: 18px;
+        }
+        
+        .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left-color: #4cc9f0;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 8px;
+            font-size: 0.95rem;
+            width: 18px;
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 16px;
+            transition: var(--transition);
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .header h1 {
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin: 0;
+            font-size: 1.3rem;
+        }
+        
+
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 5px 12px;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .user-info img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 8px;
+            object-fit: cover;
+            border: 2px solid var(--primary-light);
+        }
+        
+        .user-info span {
+            font-weight: 500;
+            font-size: 0.82rem;
+        }
+        
+        .toggle-sidebar {
+            display: none;
+            background: white;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary);
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: var(--transition);
+        }
+        
+        .toggle-sidebar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: var(--card-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            transition: var(--transition);
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            background: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 12px 16px;
+            border-radius: var(--card-radius) var(--card-radius) 0 0 !important;
+        }
+        
+        .card-header h5 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+        
+        .card-header h5:before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 18px;
+            background: var(--primary);
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+        
+        .card-body {
+            padding: 14px;
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 10px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 3px;
+            font-size: 0.78rem;
+            display: block;
+        }
+        
+        .form-control, .form-select {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.82rem;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.15);
+        }
+        
+        .required-field::after {
+            content: " *";
+            color: var(--danger);
+        }
+        
+        .optional-field::after {
+            content: " (Optional)";
+            color: #6c757d;
+            font-weight: normal;
+            font-size: 0.85rem;
+        }
+        
+        /* Buttons */
+        .btn {
+            border-radius: 8px;
+            padding: 7px 14px;
+            font-weight: 600;
+            font-size: 0.82rem;
+            transition: var(--transition);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+            border: none;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 201, 240, 0.3);
+        }
+        
+        .btn-outline-secondary {
+            border-color: #e0e0e0;
+        }
+        
+        .btn-outline-secondary:hover {
+            background-color: #f8f9fa;
+            border-color: #c0c0c0;
+        }
+        
+        /* Tables */
+        .table-responsive {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .table {
+            margin: 0;
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            font-weight: 600;
+            font-size: 0.78rem;
+        }
+        
+        .table td {
+            padding: 7px 12px;
+            vertical-align: middle;
+            border-color: #f0f0f0;
+            font-weight: 500;
+            font-size: 0.82rem;
+        }
+        
+        .table tbody tr {
+            transition: var(--transition);
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+            transform: translateX(5px);
+        }
+        
+        /* Badges */
+        .badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+        
+        .badge-success {
+            background: rgba(76, 201, 240, 0.15);
+            color: #4cc9f0;
+        }
+        
+        .badge-warning {
+            background: rgba(247, 37, 133, 0.15);
+            color: #f72585;
+        }
+        
+        .badge-danger {
+            background: rgba(230, 57, 70, 0.15);
+            color: #e63946;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1050;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+        }
+        
+        .notification.error {
+            background: linear-gradient(135deg, #e63946, #f72585);
+        }
+        
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            backdrop-filter: blur(3px);
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .toggle-sidebar {
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .user-info span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay"></div>
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/dashboard.images/login.image/logo.png" alt="Logo" class="sidebar-logo">
+                <h3>Zam Zam Nimko</h3>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="invoice.html"><i class="fas fa-file-invoice"></i> Invoices</a></li>
+                    <li><a href="data-flow.html"><i class="fas fa-exchange-alt"></i> Data Flow</a></li>
+                    <li><a href="product-entry.html" class="active"><i class="fas fa-boxes"></i> Product Entry</a></li>
+                    <li><a href="dues.html"><i class="fas fa-money-check-alt"></i> Dues</a></li>
+                    <li><a href="expiry.html"><i class="fas fa-hourglass-end"></i> Expiry</a></li>
+                    <li><a href="statement.html"><i class="fas fa-chart-bar"></i> Statement</a></li>
+                    <li><a href="loan.html"><i class="fas fa-hand-holding-usd"></i> Loan Management</a></li>
+                    <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="index.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <button class="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Product Entry</h1>
+                <div class="user-info">
+                    <img src="assets/dashboard.images/junaid.jpg" alt="User">
+                    <span>Junaid Ahmad</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Add New Product</h5>
+                </div>
+                <div class="card-body">
+                    <form id="productForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label required-field">Product Name</label>
+                                    <input type="text" class="form-control" id="productName" placeholder="Enter product name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label required-field">Category</label>
+                                    <select class="form-control" id="productCategory" required>
+                                        <option value="">Select Category</option>
+                                        <option>Snacks</option>
+                                        <option>Beverages</option>
+                                        <option>Spices</option>
+                                        <option>Dry Fruits</option>
+                                        <option>Bakery</option>
+                                        <option>Dairy</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label required-field">Packs Quantity</label>
+                                    <input type="number" class="form-control" id="packQuantity" placeholder="Enter packs" min="1" required>
+                                    <small class="text-muted">1 pack = 24 units</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label required-field">Units per Pack</label>
+                                    <input type="number" class="form-control" id="unitsPerPack" value="24" min="1" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label required-field">Total Units</label>
+                                    <input type="number" class="form-control" id="totalUnits" placeholder="Total units" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label optional-field">Purchase Price</label>
+                                    <input type="number" class="form-control" id="purchasePrice" placeholder="Enter purchase price" step="0.01" min="0">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label required-field">Selling Price</label>
+                                    <input type="number" class="form-control" id="sellingPrice" placeholder="Enter selling price" step="0.01" min="0" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label optional-field">Profit Margin</label>
+                                    <input type="text" class="form-control" id="profitMargin" placeholder="Profit margin" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label optional-field">Expiry Date</label>
+                                    <input type="date" class="form-control" id="expiryDate">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label optional-field">Supplier Name</label>
+                                    <input type="text" class="form-control" id="supplierName" placeholder="Enter supplier name">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Save Product
+                            </button>
+                            <button type="reset" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i> Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Product List</h5>
+                    <div>
+                        <input type="text" class="form-control" id="searchProduct" placeholder="Search products..." style="width: 250px;">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th>Category</th>
+                                    <th>Packs</th>
+                                    <th>Units</th>
+                                    <th>Purchase Price</th>
+                                    <th>Selling Price</th>
+                                    <th>Expiry Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productTableBody">
+                                <!-- Products will be added dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile sidebar functionality
+            const toggleSidebar = document.querySelector('.toggle-sidebar');
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarOverlay = document.querySelector('.sidebar-overlay');
+            
+            if (toggleSidebar) {
+                toggleSidebar.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
+                });
+            }
+            
+            // Close sidebar when clicking on overlay
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    sidebar.classList.remove('active');
+                    this.classList.remove('active');
+                });
+            }
+
+            // API URL
+            const API_BASE_URL = '/api';
+
+            // Product data storage
+            let products = [];
+
+            // Fetch products from database
+            async function fetchProducts() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/products`);
+                    if (!response.ok) throw new Error('Failed to fetch products');
+                    products = await response.json();
+                    renderProductTable();
+                } catch (error) {
+                    console.error('Error:', error);
+                    showNotification('Could not load products from database', 'error');
+                }
+            }
+
+            // Initial fetch
+            fetchProducts();
+
+            // DOM Elements
+            const productForm = document.getElementById('productForm');
+            const packQuantity = document.getElementById('packQuantity');
+            const unitsPerPack = document.getElementById('unitsPerPack');
+            const totalUnits = document.getElementById('totalUnits');
+            const purchasePrice = document.getElementById('purchasePrice');
+            const sellingPrice = document.getElementById('sellingPrice');
+            const profitMargin = document.getElementById('profitMargin');
+            const productTableBody = document.getElementById('productTableBody');
+            const searchProduct = document.getElementById('searchProduct');
+            const notification = document.getElementById('notification');
+
+            // Calculate total units
+            packQuantity.addEventListener('input', calculateTotalUnits);
+            unitsPerPack.addEventListener('input', calculateTotalUnits);
+            
+            function calculateTotalUnits() {
+                const packs = parseInt(packQuantity.value) || 0;
+                const units = parseInt(unitsPerPack.value) || 0;
+                totalUnits.value = packs * units;
+            }
+
+            // Calculate profit margin
+            purchasePrice.addEventListener('input', calculateProfitMargin);
+            sellingPrice.addEventListener('input', calculateProfitMargin);
+            
+            function calculateProfitMargin() {
+                const purchase = parseFloat(purchasePrice.value) || 0;
+                const selling = parseFloat(sellingPrice.value) || 0;
+                
+                if (purchase > 0 && selling > 0) {
+                    const profit = selling - purchase;
+                    const margin = (profit / purchase) * 100;
+                    profitMargin.value = `${profit.toFixed(2)} (${margin.toFixed(1)}%)`;
+                } else {
+                    profitMargin.value = '';
+                }
+            }
+
+            // Show notification
+            function showNotification(message, type = 'success') {
+                notification.textContent = message;
+                notification.className = `notification ${type} show`;
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+
+            // Render product table
+            function renderProductTable(productsToRender = products) {
+                productTableBody.innerHTML = '';
+                
+                productsToRender.forEach(product => {
+                    const packs = parseFloat(product.Packs || 0);
+                    const unitsPerPack = parseInt(product.UnitsPerPack || 24);
+                    const totalUnits = packs * unitsPerPack;
+                    const expiryDate = product.ExpiryDate;
+                    
+                    const isExpired = expiryDate && new Date(expiryDate) < new Date();
+                    const isNearExpiry = expiryDate && 
+                        new Date(expiryDate) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+                    
+                    const statusBadge = isExpired ? 
+                        '<span class="badge badge-danger">Expired</span>' : 
+                        isNearExpiry ? 
+                        '<span class="badge badge-warning">Near Expiry</span>' : 
+                        '<span class="badge badge-success">Good</span>';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${product.Name}</td>
+                        <td>${product.Category}</td>
+                        <td>${packs}</td>
+                        <td>${totalUnits}</td>
+                        <td>${product.PurchasePrice || 'N/A'}</td>
+                        <td>${product.SellingPrice}</td>
+                        <td>${expiryDate ? new Date(expiryDate).toLocaleDateString() : 'N/A'}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="editProduct(${product.ProductID})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${product.ProductID})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    productTableBody.appendChild(row);
+                });
+            }
+
+            // Save product
+            productForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const productData = {
+                    name: document.getElementById('productName').value,
+                    category: document.getElementById('productCategory').value,
+                    packs: parseFloat(document.getElementById('packQuantity').value),
+                    unitsPerPack: parseInt(document.getElementById('unitsPerPack').value),
+                    purchasePrice: parseFloat(document.getElementById('purchasePrice').value) || 0,
+                    sellingPrice: parseFloat(document.getElementById('sellingPrice').value),
+                    expiryDate: document.getElementById('expiryDate').value || null,
+                    supplier: document.getElementById('supplierName').value || null
+                };
+
+                try {
+                    const response = await fetch('/api/products', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(productData)
+                    });
+
+                    if (!response.ok) throw new Error('Failed to save product');
+
+                    showNotification('Product saved to database successfully!');
+                    productForm.reset();
+                    fetchProducts(); // Refresh list
+                } catch (error) {
+                    console.error('Error:', error);
+                    showNotification('Error saving product to database', 'error');
+                }
+            });
+
+            // Search products
+            searchProduct.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const filteredProducts = products.filter(product => 
+                    product.name.toLowerCase().includes(searchTerm) ||
+                    product.category.toLowerCase().includes(searchTerm)
+                );
+                renderProductTable(filteredProducts);
+            });
+
+            // Edit product (placeholder function)
+            window.editProduct = function(id) {
+                const product = products.find(p => p.ProductID === id);
+                if (product) {
+                    document.getElementById('productName').value = product.Name;
+                    document.getElementById('productCategory').value = product.Category;
+                    document.getElementById('packQuantity').value = product.Packs;
+                    document.getElementById('unitsPerPack').value = product.UnitsPerPack;
+                    document.getElementById('purchasePrice').value = product.PurchasePrice || '';
+                    document.getElementById('sellingPrice').value = product.SellingPrice;
+                    document.getElementById('expiryDate').value = product.ExpiryDate || '';
+                    document.getElementById('supplierName').value = product.Supplier || '';
+                    
+                    calculateTotalUnits();
+                    calculateProfitMargin();
+                    
+                    showNotification('Product loaded for reference', 'info');
+                }
+            };
+
+            // Delete product
+            window.deleteProduct = async function(id) {
+                if (confirm('Are you sure you want to delete this product?')) {
+                    try {
+                        const response = await fetch(`/api/products/${id}`, {
+                            method: 'DELETE'
+                        });
+                        if (!response.ok) throw new Error('Failed to delete product');
+                        
+                        showNotification('Product deleted from database!', 'success');
+                        fetchProducts();
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showNotification('Error deleting product', 'error');
+                    }
+                }
+            };
+
+            // Initialize
+            calculateTotalUnits();
+            fetchProducts();
+        });
+    </script>
+</body>
+</html>

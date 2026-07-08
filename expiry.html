@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dues & Expiry - Zam Zam Nimko</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            --secondary: #7209b7;
+            --success: #4cc9f0;
+            --info: #4895ef;
+            --warning: #f72585;
+            --danger: #e63946;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --sidebar-width: 210px;
+            --header-height: 70px;
+            --card-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7ff 0%, #f0f4ff 100%);
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-size: 13px;
+        }
+        
+        /* Dashboard Layout */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+        
+        .sidebar-header {
+            padding: 12px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-header h3 {
+            margin: 0;
+            font-weight: 700;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .sidebar-header h3 i {
+            color: #4cc9f0;
+        }
+        
+        .sidebar-menu {
+            padding: 8px 0;
+        }
+        
+        .sidebar-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 2px;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 8px 14px;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+            font-weight: 500;
+            font-size: 0.82rem;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: rgba(255, 255, 255, 0.5);
+            padding-left: 18px;
+        }
+        
+        .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left-color: #4cc9f0;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 8px;
+            font-size: 0.95rem;
+            width: 18px;
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 16px;
+            transition: var(--transition);
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .header h1 {
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin: 0;
+            font-size: 1.3rem;
+        }
+        
+
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 5px 12px;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .user-info img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 8px;
+            object-fit: cover;
+            border: 2px solid var(--primary-light);
+        }
+        
+        .user-info span {
+            font-weight: 500;
+            font-size: 0.82rem;
+        }
+        
+        .toggle-sidebar {
+            display: none;
+            background: white;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary);
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: var(--transition);
+        }
+        
+        .toggle-sidebar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 12px 10px; /* Reduced padding */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: var(--transition);
+            border-top: 3px solid var(--primary); /* Reduced border */
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card.dues {
+            border-top-color: #4361ee;
+        }
+        
+        .stat-card.overdue {
+            border-top-color: #f72585;
+        }
+        
+        .stat-card.customers {
+            border-top-color: #4cc9f0;
+        }
+        
+        .stat-card.expiry {
+            border-top-color: #e63946;
+        }
+        
+        .stat-icon {
+            width: 45px; /* Reduced size */
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px; /* Reduced margin */
+            font-size: 1.2rem; /* Reduced font size */
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stat-icon.dues {
+            background: linear-gradient(135deg, #4361ee, #4895ef);
+        }
+        
+        .stat-icon.overdue {
+            background: linear-gradient(135deg, #f72585, #b5179e);
+        }
+        
+        .stat-icon.customers {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+        }
+        
+        .stat-icon.expiry {
+            background: linear-gradient(135deg, #e63946, #f72585);
+        }
+        
+        .stat-value {
+            font-size: 1.4rem; /* Reduced font size */
+            font-weight: 700;
+            margin-bottom: 2px;
+            background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.75rem; /* Reduced font size */
+            font-weight: 500;
+        }
+        
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: var(--card-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            transition: var(--transition);
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            background: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 12px 16px;
+            border-radius: var(--card-radius) var(--card-radius) 0 0 !important;
+        }
+        
+        .card-header h5 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+        
+        .card-header h5:before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 18px;
+            background: var(--primary);
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        /* Tables */
+        .table-responsive {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .table {
+            margin: 0;
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            font-weight: 600;
+            font-size: 0.78rem;
+        }
+        
+        .table td {
+            padding: 7px 12px;
+            vertical-align: middle;
+            border-color: #f0f0f0;
+            font-weight: 500;
+            font-size: 0.82rem;
+        }
+        
+        .table tbody tr {
+            transition: var(--transition);
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+            transform: translateX(5px);
+        }
+        
+        /* Badges */
+        .badge {
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        
+        .badge-success {
+            background: rgba(76, 201, 240, 0.15);
+            color: #4cc9f0;
+        }
+        
+        .badge-warning {
+            background: rgba(247, 37, 133, 0.15);
+            color: #f72585;
+        }
+        
+        .badge-danger {
+            background: rgba(230, 57, 70, 0.15);
+            color: #e63946;
+        }
+        
+        /* Buttons */
+        .btn {
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+            border: none;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 201, 240, 0.3);
+        }
+        
+        .btn-outline-primary {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        /* Expiry Circles */
+        .expiry-circles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .expiry-circle {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .circle-progress {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 15px;
+        }
+        
+        .circle-bg {
+            fill: none;
+            stroke: #f0f0f0;
+            stroke-width: 8;
+        }
+        
+        .circle-progress-bar {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+        
+        .circle-progress-bar.safe {
+            stroke: #4cc9f0;
+        }
+        
+        .circle-progress-bar.warning {
+            stroke: #f72585;
+        }
+        
+        .circle-progress-bar.danger {
+            stroke: #e63946;
+        }
+        
+        .circle-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .circle-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1050;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .toggle-sidebar {
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .user-info span {
+                display: none;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay"></div>
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-chart-line me-2"></i>Zam Zam Nimko</h3>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="invoice.html"><i class="fas fa-file-invoice"></i> Invoices</a></li>
+                    <li><a href="data-flow.html"><i class="fas fa-exchange-alt"></i> Data Flow</a></li>
+                    <li><a href="product-entry.html"><i class="fas fa-boxes"></i> Product Entry</a></li>
+                    <li><a href="dues.html" class="active"><i class="fas fa-money-check-alt"></i> Dues</a></li>
+                    <li><a href="statement.html"><i class="fas fa-chart-bar"></i> Statement</a></li>
+                    <li><a href="loan.html"><i class="fas fa-hand-holding-usd"></i> Loan Management</a></li>
+                    <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="index.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <button class="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Dues & Expiry Management</h1>
+                <div class="user-info">
+                    <img src="assets/dashboard.images/junaid.jpg" alt="User">
+                    <span>Junaid Ahmad</span>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card dues">
+                    <div class="stat-icon dues">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stat-value">1,250</div>
+                    <div class="stat-label">Total Dues</div>
+                </div>
+                <div class="stat-card overdue">
+                    <div class="stat-icon overdue">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-value">345</div>
+                    <div class="stat-label">Overdue</div>
+                </div>
+                <div class="stat-card customers">
+                    <div class="stat-icon customers">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Customers</div>
+                </div>
+                <div class="stat-card expiry">
+                    <div class="stat-icon expiry">
+                        <i class="fas fa-hourglass-end"></i>
+                    </div>
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Near Expiry</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Customer Dues</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Customer Name</th>
+                                            <th>Phone</th>
+                                            <th>Amount Due</th>
+                                            <th>Due Date</th>
+                                            <th>Days</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="duesTableBody">
+                                        <!-- Dues data will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Due History</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Date Cleared</th>
+                                            <th>Customer Name</th>
+                                            <th>Invoice ID</th>
+                                            <th>Amount</th>
+                                            <th>Payment Method</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dueHistoryTableBody">
+                                        <!-- Due history will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Expiry Status</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="expiry-circles">
+                                <div class="expiry-circle">
+                                    <div class="circle-progress">
+                                        <svg width="100" height="100" viewBox="0 0 100 100">
+                                            <circle class="circle-bg" cx="50" cy="50" r="40"></circle>
+                                            <circle class="circle-progress-bar safe" cx="50" cy="50" r="40" id="safeCircle"></circle>
+                                        </svg>
+                                        <div class="circle-text" id="safeCount">0</div>
+                                    </div>
+                                    <div class="circle-label">Safe Products</div>
+                                </div>
+                                <div class="expiry-circle">
+                                    <div class="circle-progress">
+                                        <svg width="100" height="100" viewBox="0 0 100 100">
+                                            <circle class="circle-bg" cx="50" cy="50" r="40"></circle>
+                                            <circle class="circle-progress-bar warning" cx="50" cy="50" r="40" id="warningCircle"></circle>
+                                        </svg>
+                                        <div class="circle-text" id="warningCount">0</div>
+                                    </div>
+                                    <div class="circle-label">Near Expiry</div>
+                                </div>
+                                <div class="expiry-circle">
+                                    <div class="circle-progress">
+                                        <svg width="100" height="100" viewBox="0 0 100 100">
+                                            <circle class="circle-bg" cx="50" cy="50" r="40"></circle>
+                                            <circle class="circle-progress-bar danger" cx="50" cy="50" r="40" id="dangerCircle"></circle>
+                                        </svg>
+                                        <div class="circle-text" id="dangerCount">0</div>
+                                    </div>
+                                    <div class="circle-label">Expired</div>
+                                </div>
+                            </div>
+                            
+                            <div class="chart-container">
+                                <canvas id="expiryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Products Near Expiry</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group list-group-flush" id="expiryList">
+                                <!-- Expiry products will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile sidebar functionality
+            const toggleSidebar = document.querySelector('.toggle-sidebar');
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarOverlay = document.querySelector('.sidebar-overlay');
+            
+            if (toggleSidebar) {
+                toggleSidebar.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
+                });
+            }
+            
+            // Close sidebar when clicking on overlay
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    sidebar.classList.remove('active');
+                    this.classList.remove('active');
+                });
+            }
+
+            // API Configuration
+            const API_BASE_URL = '/api';
+
+            let duesData = [];
+            let expiryData = [];
+
+            // Fetch Dues and Expiry Data
+            async function fetchData() {
+                try {
+                    // Fetch Dues
+                    const duesResponse = await fetch(`${API_BASE_URL}/dues`);
+                    if (duesResponse.ok) {
+                        duesData = await duesResponse.json();
+                        renderDuesTable();
+                    }
+
+                    // Fetch Products for Expiry
+                    const productsResponse = await fetch(`${API_BASE_URL}/products`);
+                    if (productsResponse.ok) {
+                        const products = await productsResponse.json();
+                        expiryData = products.map(p => ({
+                            name: p.Name,
+                            expiry: p.ExpiryDate,
+                            status: getExpiryStatus(p.ExpiryDate)
+                        }));
+                        renderExpiryList();
+                        updateExpiryCircles();
+                        updateExpiryChart();
+                    }
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                }
+            }
+
+            function getExpiryStatus(expiryDate) {
+                if (!expiryDate) return 'safe';
+                const today = new Date();
+                const exp = new Date(expiryDate);
+                const diffDays = Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
+                
+                if (diffDays <= 0) return 'danger';
+                if (diffDays <= 30) return 'warning';
+                return 'safe';
+            }
+
+            // Initial Load
+            fetchData();
+
+            // DOM Elements
+            const duesTableBody = document.getElementById('duesTableBody');
+            const dueHistoryTableBody = document.getElementById('dueHistoryTableBody');
+            const expiryList = document.getElementById('expiryList');
+            const notification = document.getElementById('notification');
+
+            // Show notification
+            function showNotification(message, type = 'success') {
+                notification.textContent = message;
+                notification.className = `notification ${type} show`;
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+
+            // Render dues table
+            function renderDuesTable() {
+                duesTableBody.innerHTML = '';
+                
+                const pendingDues = duesData.filter(d => d.Status === 'Pending');
+                
+                pendingDues.forEach(due => {
+                    const dueDate = new Date(due.DueDate);
+                    const today = new Date();
+                    const daysDiff = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    const isOverdue = daysDiff < 0;
+                    const statusBadge = isOverdue ? 
+                        '<span class="badge badge-danger">Overdue</span>' : 
+                        '<span class="badge badge-warning">Pending</span>';
+                    
+                    const daysText = daysDiff > 0 ? `In ${daysDiff} days` : `${Math.abs(daysDiff)} days ago`;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${due.CustomerName}</td>
+                        <td>${due.PhoneNumber}</td>
+                        <td>${due.AmountDue.toLocaleString()}</td>
+                        <td>${dueDate.toLocaleDateString()}</td>
+                        <td>${daysText}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <button class="btn btn-sm btn-success me-1" onclick="clearDue(${due.DueID})">
+                                <i class="fas fa-check me-1"></i> Clear
+                            </button>
+                        </td>
+                    `;
+                    duesTableBody.appendChild(row);
+                });
+
+                // Also update the stats at the top
+                document.querySelector('.stat-card.dues .stat-value').textContent = 
+                    pendingDues.reduce((sum, d) => sum + d.AmountDue, 0).toLocaleString();
+                document.querySelector('.stat-card.overdue .stat-value').textContent = 
+                    pendingDues.filter(d => (new Date(d.DueDate) < new Date())).length;
+                document.querySelector('.stat-card.customers .stat-value').textContent = 
+                    new Set(pendingDues.map(d => d.CustomerName)).size;
+            }
+
+            // Render due history
+            function renderDueHistory() {
+                dueHistoryTableBody.innerHTML = '';
+                const paidDues = duesData.filter(d => d.Status === 'Paid');
+                
+                paidDues.forEach(history => {
+                    const row = document.createElement('tr');
+                    const date = history.DateCreated ? new Date(history.DateCreated).toLocaleDateString() : 'N/A';
+                    row.innerHTML = `
+                        <td>${date}</td>
+                        <td>${history.CustomerName}</td>
+                        <td>${history.InvoiceID || 'N/A'}</td>
+                        <td>${history.AmountDue.toLocaleString()}</td>
+                        <td><span class="badge badge-success">Cash</span></td>
+                    `;
+                    dueHistoryTableBody.appendChild(row);
+                });
+            }
+
+            // Render expiry list
+            function renderExpiryList() {
+                expiryList.innerHTML = '';
+                
+                expiryData.forEach(product => {
+                    const expiryDate = new Date(product.expiry);
+                    const today = new Date();
+                    const daysDiff = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    const statusClass = product.status === 'safe' ? 'badge-success' : 
+                                      product.status === 'warning' ? 'badge-warning' : 'badge-danger';
+                    
+                    const statusText = product.status === 'safe' ? 'Safe' : 
+                                     product.status === 'warning' ? 'Near Expiry' : 'Expired';
+                    
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                    item.innerHTML = `
+                        <div>
+                            <h6 class="mb-1">${product.name}</h6>
+                            <small class="text-muted">Expires: ${expiryDate.toLocaleDateString()}</small>
+                        </div>
+                        <span class="badge ${statusClass}">${daysDiff} days</span>
+                    `;
+                    expiryList.appendChild(item);
+                });
+            }
+
+            // Update expiry circles
+            function updateExpiryCircles() {
+                const safeCount = expiryData.filter(p => p.status === 'safe').length;
+                const warningCount = expiryData.filter(p => p.status === 'warning').length;
+                const dangerCount = expiryData.filter(p => p.status === 'danger').length;
+                const totalCount = safeCount + warningCount + dangerCount;
+                
+                document.getElementById('safeCount').textContent = safeCount;
+                document.getElementById('warningCount').textContent = warningCount;
+                document.getElementById('dangerCount').textContent = dangerCount;
+                
+                // Update circle progress
+                const safePercentage = (safeCount / totalCount) * 100;
+                const warningPercentage = (warningCount / totalCount) * 100;
+                const dangerPercentage = (dangerCount / totalCount) * 100;
+                
+                const safeCircle = document.getElementById('safeCircle');
+                const warningCircle = document.getElementById('warningCircle');
+                const dangerCircle = document.getElementById('dangerCircle');
+                
+                const circumference = 2 * Math.PI * 40;
+                safeCircle.style.strokeDasharray = circumference;
+                safeCircle.style.strokeDashoffset = circumference - (safePercentage / 100) * circumference;
+                
+                warningCircle.style.strokeDasharray = circumference;
+                warningCircle.style.strokeDashoffset = circumference - (warningPercentage / 100) * circumference;
+                
+                dangerCircle.style.strokeDasharray = circumference;
+                dangerCircle.style.strokeDashoffset = circumference - (dangerPercentage / 100) * circumference;
+            }
+
+            let expiryChart;
+
+            // Expiry Chart
+            function renderExpiryChart() {
+                const ctx = document.getElementById('expiryChart').getContext('2d');
+                expiryChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Safe', 'Near Expiry', 'Expired'],
+                        datasets: [{
+                            data: [0, 0, 0],
+                            backgroundColor: [
+                                'rgba(76, 201, 240, 0.8)',
+                                'rgba(247, 37, 133, 0.8)',
+                                'rgba(230, 57, 70, 0.8)'
+                            ],
+                            borderColor: [
+                                '#4cc9f0',
+                                '#f72585',
+                                '#e63946'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle'
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.label}: ${context.parsed} products`;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '60%',
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true
+                        }
+                    }
+                });
+            }
+
+            // Clear due function
+            window.clearDue = async function(id) {
+                const due = duesData.find(d => d.DueID === id);
+                if (due && confirm(`Mark ${due.AmountDue} from ${due.CustomerName} as paid?`)) {
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/dues/${id}/clear`, {
+                            method: 'POST'
+                        });
+                        if (response.ok) {
+                            showNotification(`Due cleared successfully for ${due.CustomerName}`, 'success');
+                            // Refresh data
+                            fetchData();
+                        } else {
+                            showNotification('Failed to clear due', 'danger');
+                        }
+                    } catch (error) {
+                        console.error('Error clearing due:', error);
+                        showNotification('Error connecting to server', 'danger');
+                    }
+                }
+            };
+
+            // View invoice function
+            window.viewInvoice = function(id) {
+                alert(`Viewing invoice details for due ID: ${id}`);
+            };
+
+            // Initialize
+            fetchData();
+            renderExpiryChart();
+        });
+    </script>
+</body>
+</html>

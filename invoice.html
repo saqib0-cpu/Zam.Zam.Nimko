@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoices - Zam Zam Nimko</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            --secondary: #7209b7;
+            --success: #4cc9f0;
+            --danger: #e63946;
+            --sidebar-width: 210px;
+            --card-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: linear-gradient(135deg, #f5f7ff 0%, #f0f4ff 100%); color: #333; min-height: 100vh; font-size: 13px; }
+        .dashboard-container { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar { width: var(--sidebar-width); background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%); position: fixed; height: 100vh; overflow-y: auto; z-index: 1000; transition: var(--transition); }
+        .sidebar-header { padding: 12px 10px; background: rgba(255,255,255,0.1); text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .sidebar-header h3 { margin: 0; font-weight: 700; color: white; font-size: 1rem; }
+        .sidebar-logo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.3); }
+        .sidebar-menu { padding: 8px 0; }
+        .sidebar-menu ul { list-style: none; padding: 0; margin: 0; }
+        .sidebar-menu li { margin-bottom: 2px; }
+        .sidebar-menu a { display: flex; align-items: center; padding: 8px 14px; color: rgba(255,255,255,0.85); text-decoration: none; transition: var(--transition); border-left: 3px solid transparent; font-weight: 500; font-size: 0.82rem; }
+        .sidebar-menu a:hover { background: rgba(255,255,255,0.1); color: white; border-left-color: rgba(255,255,255,0.5); padding-left: 18px; }
+        .sidebar-menu a.active { background: rgba(255,255,255,0.15); color: white; border-left-color: #4cc9f0; }
+        .sidebar-menu i { margin-right: 8px; font-size: 0.95rem; width: 18px; text-align: center; }
+
+        /* Main Content */
+        .main-content { flex: 1; margin-left: var(--sidebar-width); padding: 16px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .header h1 { font-weight: 700; color: var(--primary-dark); margin: 0; font-size: 1.3rem; }
+        .user-info { display: flex; align-items: center; background: white; padding: 5px 12px; border-radius: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .user-info img { width: 30px; height: 30px; border-radius: 50%; margin-right: 8px; object-fit: cover; border: 2px solid var(--primary-light); }
+        .user-info span { font-weight: 500; color: #333; font-size: 0.82rem; }
+        .toggle-sidebar { display: none; background: white; border: none; font-size: 1.2rem; color: var(--primary); width: 36px; height: 36px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); cursor: pointer; }
+
+        /* Cards */
+        .card { border: none; border-radius: var(--card-radius); box-shadow: 0 4px 12px rgba(0,0,0,0.06); margin-bottom: 16px; overflow: hidden; }
+        .card-header { background: white; border-bottom: 1px solid rgba(0,0,0,0.05); padding: 12px 16px; }
+        .card-header h5 { margin: 0; font-weight: 600; color: var(--primary-dark); display: flex; align-items: center; font-size: 0.95rem; }
+        .card-header h5:before { content: ''; display: inline-block; width: 3px; height: 15px; background: var(--primary); margin-right: 8px; border-radius: 2px; }
+        .card-body { padding: 14px; }
+
+        /* Form */
+        .form-group { margin-bottom: 10px; }
+        .form-label { font-weight: 600; color: #444; margin-bottom: 3px; font-size: 0.78rem; display: block; }
+        .form-control, .form-select { border: 1px solid #e0e0e0; border-radius: 8px; padding: 6px 10px; font-size: 0.82rem; transition: var(--transition); }
+        .form-control:focus, .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 0.15rem rgba(67,97,238,0.15); outline: none; }
+
+        /* Customer Search */
+        .customer-search-wrap { position: relative; }
+        .customer-search-wrap input { width: 100%; }
+        #customerSuggestions { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; z-index: 200; max-height: 200px; overflow-y: auto; box-shadow: 0 8px 20px rgba(0,0,0,0.12); display: none; }
+        #customerSuggestions .suggestion-item { padding: 8px 12px; cursor: pointer; font-size: 0.82rem; border-bottom: 1px solid #f0f0f0; }
+        #customerSuggestions .suggestion-item:hover { background: #f0f4ff; color: var(--primary); }
+        #customerSuggestions .suggestion-item:last-child { border-bottom: none; }
+
+        /* Invoice Product Row */
+        .invoice-product { background: #f8f9ff; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #e6e9ff; position: relative; }
+        .remove-product { position: absolute; top: 8px; right: 10px; background: var(--danger); color: white; border: none; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; transition: var(--transition); }
+        .remove-product:hover { background: #c1121f; transform: scale(1.1); }
+
+        /* Invoice Total */
+        .invoice-total { background: #f8f9ff; padding: 14px; border-radius: 8px; margin-top: 14px; }
+
+        /* Buttons */
+        .btn { border-radius: 8px; padding: 7px 14px; font-weight: 600; transition: var(--transition); font-size: 0.82rem; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); border: none; color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(67,97,238,0.3); color: white; }
+        .btn-success { background: linear-gradient(135deg, #4cc9f0, #4895ef); border: none; color: white; }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(76,201,240,0.3); color: white; }
+        .btn-sm { padding: 4px 10px; font-size: 0.78rem; }
+
+        /* Notification */
+        .notification { position: fixed; top: 16px; right: 16px; padding: 12px 18px; border-radius: 8px; color: white; font-weight: 600; z-index: 9999; transform: translateX(150%); transition: transform 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.15); font-size: 0.85rem; }
+        .notification.show { transform: translateX(0); }
+        .notification.success { background: linear-gradient(135deg, #4cc9f0, #4895ef); }
+        .notification.warning { background: linear-gradient(135deg, #f72585, #b5179e); }
+        .notification.error { background: linear-gradient(135deg, #e63946, #c1121f); }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            backdrop-filter: blur(3px);
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .toggle-sidebar {
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        /* ===== PRINT STYLES ===== */
+        .invoice-print { display: none; }
+
+        @media print {
+            .no-print, .sidebar, .header, .toggle-sidebar, .btn, .remove-product, .notification, .sidebar-overlay { display: none !important; }
+            .main-content { margin-left: 0 !important; padding: 0 !important; }
+            body { background: white !important; font-size: 12px; }
+            .dashboard-container { display: none !important; }
+            .invoice-print {
+                display: block !important;
+                width: 100%;
+                max-width: 780px;
+                margin: 0 auto;
+                padding: 16px;
+                font-family: 'Poppins', sans-serif;
+            }
+            .p-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #4361ee; padding-bottom: 12px; margin-bottom: 14px; }
+            .p-logo { width: 60px; height: 60px; border-radius: 50%; background: #4361ee; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 10px; text-align: center; line-height: 1.2; }
+            .p-company h2 { color: #4361ee; margin: 0 0 2px; font-size: 18px; }
+            .p-company p { margin: 1px 0; font-size: 11px; color: #555; }
+            .p-inv-info { text-align: right; }
+            .p-inv-info h1 { color: #4361ee; margin: 0; font-size: 26px; font-weight: 700; }
+            .p-inv-info p { margin: 2px 0; font-size: 11px; }
+            .p-details { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 14px 0; }
+            .p-detail-box h5 { border-bottom: 2px solid #4361ee; padding-bottom: 3px; margin-bottom: 6px; color: #4361ee; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+            .p-detail-box p { margin: 3px 0; font-size: 11px; }
+            .p-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+            .p-table th { background: #4361ee; color: white; padding: 8px 10px; text-align: left; font-size: 11px; border: 1px solid #4361ee; }
+            .p-table td { border: 1px solid #ddd; padding: 7px 10px; font-size: 11px; }
+            .p-table tbody tr:nth-child(even) { background: #f8f9ff; }
+            .p-summary { display: flex; justify-content: flex-end; margin-top: 10px; }
+            .p-summary-box { width: 240px; }
+            .p-sum-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 11px; border-bottom: 1px solid #eee; }
+            .p-sum-row.grand { border-top: 2px solid #333; border-bottom: none; margin-top: 6px; padding-top: 6px; font-weight: 700; font-size: 14px; }
+            .p-sum-row.paid { color: #28a745; font-weight: 600; }
+            .p-sum-row.balance { color: #e63946; font-weight: 700; font-size: 13px; }
+            .p-footer { margin-top: 30px; display: flex; justify-content: space-between; font-size: 10px; }
+            .p-terms p { margin: 2px 0; }
+            .p-sig { text-align: center; width: 160px; }
+            .p-sig-line { border-top: 1px solid #333; padding-top: 4px; margin-top: 30px; }
+            .p-thankyou { text-align: center; margin-top: 20px; padding-top: 12px; border-top: 1px dashed #ccc; font-size: 11px; font-style: italic; color: #555; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <div class="dashboard-container no-print">
+        <div class="sidebar-overlay"></div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/dashboard.images/login.image/logo.png" alt="Logo" class="sidebar-logo">
+                <h3>Zam Zam Nimko</h3>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="invoice.html" class="active"><i class="fas fa-file-invoice"></i> Invoices</a></li>
+                    <li><a href="data-flow.html"><i class="fas fa-exchange-alt"></i> Data Flow</a></li>
+                    <li><a href="product-entry.html"><i class="fas fa-boxes"></i> Product Entry</a></li>
+                    <li><a href="dues.html"><i class="fas fa-money-check-alt"></i> Dues</a></li>
+                    <li><a href="expiry.html"><i class="fas fa-hourglass-end"></i> Expiry</a></li>
+                    <li><a href="statement.html"><i class="fas fa-chart-bar"></i> Statement</a></li>
+                    <li><a href="loan.html"><i class="fas fa-hand-holding-usd"></i> Loan Management</a></li>
+                    <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="index.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <button class="toggle-sidebar"><i class="fas fa-bars"></i></button>
+                <h1><i class="fas fa-file-invoice me-2" style="color:var(--primary)"></i>Create Invoice</h1>
+                <div class="user-info">
+                    <img src="assets/dashboard.images/junaid.jpg" alt="User">
+                    <span>Junaid Ahmad</span>
+                </div>
+            </div>
+
+            <!-- Customer Search Card -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Customer Information</h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="customer-search-wrap" style="min-width:220px;">
+                            <input type="text" class="form-control" id="customerSearch" placeholder="&#128269; Search customer name..." autocomplete="off">
+                            <div id="customerSuggestions"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">Customer Name *</label>
+                                <input type="text" class="form-control" id="customerName" placeholder="Enter name">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">Customer Phone</label>
+                                <input type="text" class="form-control" id="customerPhone" placeholder="Enter phone">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">Invoice Date</label>
+                                <input type="text" class="form-control" id="invoiceDate" readonly style="background:#f8f9ff;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Card -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Products</h5>
+                    <button class="btn btn-primary btn-sm" id="addProductBtn">
+                        <i class="fas fa-plus me-1"></i>Add Product
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="invoice-products" id="invoiceProducts">
+                        <!-- product rows added here -->
+                    </div>
+
+                    <div class="invoice-total">
+                        <div class="row">
+                            <div class="col-md-5 offset-md-7">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-muted">Subtotal:</span>
+                                    <strong id="subtotal">0.00</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-muted">Discount:</span>
+                                    <span id="discountAmount">0.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between fw-bold mb-2" style="font-size:1rem;">
+                                    <span>Total:</span>
+                                    <span id="totalAmount" style="color:var(--primary);">0.00</span>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <label class="form-label text-success fw-bold">Paid Amount</label>
+                                    <input type="number" class="form-control" id="paidAmount" value="0" min="0">
+                                </div>
+                                <div class="d-flex justify-content-between fw-bold text-danger" style="font-size:0.95rem;">
+                                    <span>Balance Due:</span>
+                                    <span id="balanceAmount">0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 d-flex gap-2 flex-wrap no-print">
+                        <button class="btn btn-primary" id="saveInvoice">
+                            <i class="fas fa-save me-1"></i>Save Invoice
+                        </button>
+                        <button class="btn btn-success" id="printInvoice">
+                            <i class="fas fa-print me-1"></i>Print Invoice
+                        </button>
+                        <button class="btn btn-outline-secondary" id="cancelInvoice">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PRINT TEMPLATE (hidden on screen, shown only on print) ===== -->
+    <div class="invoice-print" id="invoicePrint">
+        <div class="p-header">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div class="p-logo">ZAM ZAM<br>NIMKO</div>
+                <div class="p-company">
+                    <h2>Zam Zam Nimko</h2>
+                    <p>Proprietor: Junaid Ahmad</p>
+                    <p>Phone: +92 300 9597502</p>
+                    <p>Location: Timargara Rany, Dir Lower</p>
+                </div>
+            </div>
+            <div class="p-inv-info">
+                <h1>INVOICE</h1>
+                <p><strong>#<span id="pInvoiceNumber">INV-000000</span></strong></p>
+                <p>Date: <span id="pDate">-</span></p>
+            </div>
+        </div>
+
+        <div class="p-details">
+            <div class="p-detail-box">
+                <h5>BILL TO:</h5>
+                <p><strong id="pCustomerName" style="font-size:13px;">-</strong></p>
+                <p id="pCustomerPhone">-</p>
+            </div>
+            <div class="p-detail-box" style="text-align:right;">
+                <h5>PAYMENT INFO:</h5>
+                <p>Status: <span id="pStatusBadge" style="padding:2px 8px;border-radius:4px;background:#eee;">-</span></p>
+                <p>Balance Due: <strong id="pBalanceDue" style="color:#e63946;">0.00</strong></p>
+            </div>
+        </div>
+
+        <table class="p-table">
+            <thead>
+                <tr>
+                    <th style="width:40px;">Sr.</th>
+                    <th>Product Description</th>
+                    <th style="text-align:center;">Packs</th>
+                    <th style="text-align:center;">Units/Pack</th>
+                    <th style="text-align:right;">Unit Price</th>
+                    <th style="text-align:right;">Total</th>
+                </tr>
+            </thead>
+            <tbody id="pProductsBody">
+                <!-- populated via JS -->
+            </tbody>
+        </table>
+
+        <div class="p-summary">
+            <div class="p-summary-box">
+                <div class="p-sum-row">
+                    <span>Subtotal:</span>
+                    <span id="pSubtotal">0.00</span>
+                </div>
+                <div class="p-sum-row">
+                    <span>Discount:</span>
+                    <span id="pDiscount">0.00</span>
+                </div>
+                <div class="p-sum-row grand">
+                    <span>Grand Total:</span>
+                    <span id="pTotal">0.00</span>
+                </div>
+                <div class="p-sum-row paid">
+                    <span>Paid Amount:</span>
+                    <span id="pPaidAmount">0.00</span>
+                </div>
+                <div class="p-sum-row balance">
+                    <span>Balance Due:</span>
+                    <span id="pBalance">0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-footer">
+            <div class="p-terms">
+                <p><strong>Terms &amp; Conditions:</strong></p>
+                <p>1. Items once sold are not returnable.</p>
+                <p>2. Please check goods before leaving.</p>
+                <p>3. Payment within 15 days.</p>
+                <p>4. This is a computer generated invoice.</p>
+            </div>
+            <div class="p-sig">
+                <div class="p-sig-line">Customer Signature</div>
+            </div>
+            <div class="p-sig">
+                <div class="p-sig-line">Authorized Signatory</div>
+            </div>
+        </div>
+        <div class="p-thankyou">
+            <p><strong>Thank you for your business!</strong></p>
+            <p>We appreciate your trust in Zam Zam Nimko</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // ── Sidebar toggle ──
+        const toggleSidebar = document.querySelector('.toggle-sidebar');
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarOverlay = document.querySelector('.sidebar-overlay');
+        if (toggleSidebar) {
+            toggleSidebar.addEventListener('click', () => { sidebar.classList.toggle('active'); sidebarOverlay.classList.toggle('active'); });
+        }
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('active'); sidebarOverlay.classList.remove('active'); });
+        }
+
+        // ── Date ──
+        const today = new Date();
+        document.getElementById('invoiceDate').value = today.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+        // ── Notification ──
+        function showNotification(msg, type = 'success') {
+            const n = document.getElementById('notification');
+            n.textContent = msg;
+            n.className = `notification ${type} show`;
+            setTimeout(() => n.classList.remove('show'), 3500);
+        }
+
+        // ── API Base ──
+        const API = '/api';
+
+        // ── Products data ──
+        let products = [];
+        let allCustomers = [];
+
+        // ── Fetch products ──
+        async function fetchProducts() {
+            try {
+                const r = await fetch(`${API}/products`);
+                if (!r.ok) throw new Error('fetch failed');
+                products = await r.json();
+                document.getElementById('invoiceProducts').innerHTML = '';
+                addProductRow();
+            } catch (e) {
+                showNotification('Could not load products. Check DB connection.', 'error');
+            }
+        }
+
+        // ── Fetch customers from dedicated endpoint ──
+        async function fetchCustomers() {
+            try {
+                const r = await fetch(`${API}/customers`);
+                if (!r.ok) return;
+                allCustomers = await r.json();
+            } catch (e) { /* silent */ }
+        }
+
+        fetchProducts();
+        fetchCustomers();
+
+        // ── Customer Search ──
+        const customerSearchInput = document.getElementById('customerSearch');
+        const suggestionsBox = document.getElementById('customerSuggestions');
+
+        customerSearchInput.addEventListener('input', function () {
+            const q = this.value.trim().toLowerCase();
+            suggestionsBox.innerHTML = '';
+            if (!q) { suggestionsBox.style.display = 'none'; return; }
+            const matches = allCustomers.filter(c => c.CustomerName.toLowerCase().includes(q));
+            if (!matches.length) { suggestionsBox.style.display = 'none'; return; }
+            matches.slice(0, 10).forEach(c => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.innerHTML = `<strong>${c.CustomerName}</strong> <span style="color:#888;font-size:0.75rem;">${c.CustomerPhone || ''}</span>`;
+                item.addEventListener('click', () => {
+                    document.getElementById('customerName').value = c.CustomerName;
+                    document.getElementById('customerPhone').value = c.CustomerPhone || '';
+                    customerSearchInput.value = c.CustomerName;
+                    suggestionsBox.style.display = 'none';
+                });
+                suggestionsBox.appendChild(item);
+            });
+            suggestionsBox.style.display = 'block';
+        });
+
+        // hide suggestions on outside click
+        document.addEventListener('click', function (e) {
+            if (!document.querySelector('.customer-search-wrap').contains(e.target)) {
+                suggestionsBox.style.display = 'none';
+            }
+        });
+
+        // ── Add Product Row ──
+        const invoiceProductsContainer = document.getElementById('invoiceProducts');
+
+        function addProductRow() {
+            const row = document.createElement('div');
+            row.className = 'invoice-product';
+            row.innerHTML = `
+                <button class="remove-product" type="button"><i class="fas fa-times"></i></button>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Product</label>
+                            <select class="form-control product-select">
+                                <option value="">-- Select Product --</option>
+                                ${products.map(p => `<option value="${p.ProductID}" data-price="${p.SellingPrice}" data-units="${p.UnitsPerPack}">${p.Name}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label class="form-label">Packs</label>
+                            <input type="number" class="form-control packs-input" value="1" min="1">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label class="form-label">Units/Pack</label>
+                            <input type="number" class="form-control units-input" value="" min="1" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label class="form-label">Unit Price</label>
+                            <input type="text" class="form-control price-input" value="" placeholder="0.00" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label class="form-label">Row Total</label>
+                            <input type="text" class="form-control total-input" value="0.00" readonly style="font-weight:600;color:var(--primary);">
+                        </div>
+                    </div>
+                </div>
+            `;
+            invoiceProductsContainer.appendChild(row);
+
+            const removeBtn = row.querySelector('.remove-product');
+            const productSelect = row.querySelector('.product-select');
+            const packsInput = row.querySelector('.packs-input');
+            const unitsInput = row.querySelector('.units-input');
+            const priceInput = row.querySelector('.price-input');
+            const totalInput = row.querySelector('.total-input');
+
+            removeBtn.addEventListener('click', () => { row.remove(); calculateTotal(); });
+
+            productSelect.addEventListener('change', function () {
+                const opt = this.options[this.selectedIndex];
+                unitsInput.value = opt.dataset.units || '';
+                priceInput.value = opt.dataset.price || '';
+                calcRow(packsInput, unitsInput, priceInput, totalInput);
+                calculateTotal();
+            });
+
+            packsInput.addEventListener('input', () => { calcRow(packsInput, unitsInput, priceInput, totalInput); calculateTotal(); });
+            unitsInput.addEventListener('input', () => { calcRow(packsInput, unitsInput, priceInput, totalInput); calculateTotal(); });
+        }
+
+        function calcRow(packs, units, price, total) {
+            const p = parseInt(packs.value) || 0;
+            const u = parseInt(units.value) || 0;
+            const pr = parseFloat(price.value) || 0;
+            total.value = (p * u * pr).toFixed(2);
+        }
+
+        // ── Calculate Total ──
+        function calculateTotal() {
+            let subtotal = 0;
+            document.querySelectorAll('.total-input').forEach(inp => { subtotal += parseFloat(inp.value) || 0; });
+            const discount = 0;
+            const total = subtotal - discount;
+            document.getElementById('subtotal').textContent = subtotal.toFixed(2);
+            document.getElementById('discountAmount').textContent = discount.toFixed(2);
+            document.getElementById('totalAmount').textContent = total.toFixed(2);
+            calculateBalance(total);
+            // live update print values
+            document.getElementById('pSubtotal').textContent = subtotal.toFixed(2);
+            document.getElementById('pDiscount').textContent = discount.toFixed(2);
+            document.getElementById('pTotal').textContent = total.toFixed(2);
+        }
+
+        function calculateBalance(total) {
+            total = total !== undefined ? total : parseFloat(document.getElementById('totalAmount').textContent) || 0;
+            const paid = parseFloat(document.getElementById('paidAmount').value) || 0;
+            const balance = Math.max(0, total - paid);
+            document.getElementById('balanceAmount').textContent = balance.toFixed(2);
+            document.getElementById('pBalanceDue').textContent = balance.toFixed(2);
+            document.getElementById('pBalance').textContent = balance.toFixed(2);
+            document.getElementById('pPaidAmount').textContent = paid.toFixed(2);
+        }
+
+        document.getElementById('paidAmount').addEventListener('input', () => calculateBalance());
+
+        // ── Add product btn ──
+        document.getElementById('addProductBtn').addEventListener('click', addProductRow);
+
+        // ── Build print products table ──
+        function buildPrintProducts() {
+            const tbody = document.getElementById('pProductsBody');
+            tbody.innerHTML = '';
+            let counter = 1;
+            document.querySelectorAll('.invoice-product').forEach(row => {
+                const sel = row.querySelector('.product-select');
+                const packs = row.querySelector('.packs-input').value;
+                const units = row.querySelector('.units-input').value;
+                const price = row.querySelector('.price-input').value;
+                const total = row.querySelector('.total-input').value;
+                const name = sel.options[sel.selectedIndex].text;
+                if (sel.value && name !== '-- Select Product --') {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${counter}</td>
+                        <td>${name}</td>
+                        <td style="text-align:center;">${packs}</td>
+                        <td style="text-align:center;">${units}</td>
+                        <td style="text-align:right;">${parseFloat(price || 0).toFixed(2)}</td>
+                        <td style="text-align:right;font-weight:600;">${parseFloat(total || 0).toFixed(2)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                    counter++;
+                }
+            });
+        }
+
+        // ── Update print header data ──
+        function updatePrintHeader(invoiceData) {
+            document.getElementById('pInvoiceNumber').textContent = invoiceData.invoiceNumber;
+            document.getElementById('pDate').textContent = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            document.getElementById('pCustomerName').textContent = invoiceData.customerName;
+            document.getElementById('pCustomerPhone').textContent = invoiceData.customerPhone || '-';
+            document.getElementById('pPaidAmount').textContent = parseFloat(invoiceData.paidAmount || 0).toFixed(2);
+            document.getElementById('pBalance').textContent = parseFloat(invoiceData.balance || 0).toFixed(2);
+            document.getElementById('pBalanceDue').textContent = parseFloat(invoiceData.balance || 0).toFixed(2);
+            const status = invoiceData.balance > 0 ? 'PARTIAL' : 'PAID';
+            const badge = document.getElementById('pStatusBadge');
+            badge.textContent = status;
+            badge.style.background = invoiceData.balance > 0 ? '#ffe0e6' : '#d4f5e9';
+            badge.style.color = invoiceData.balance > 0 ? '#e63946' : '#28a745';
+        }
+
+        // ── Save Invoice ──
+        document.getElementById('saveInvoice').addEventListener('click', async function () {
+            const customerName = document.getElementById('customerName').value.trim();
+            const customerPhone = document.getElementById('customerPhone').value.trim();
+
+            if (!customerName) { showNotification('Please enter customer name', 'warning'); return; }
+
+            const items = [];
+            let hasInvalid = false;
+            document.querySelectorAll('.invoice-product').forEach(row => {
+                const productId = row.querySelector('.product-select').value;
+                const packs = parseInt(row.querySelector('.packs-input').value) || 0;
+                const units = parseInt(row.querySelector('.units-input').value) || 0;
+                const quantity = packs * units;
+                const unitPrice = parseFloat(row.querySelector('.price-input').value) || 0;
+                if (productId && quantity > 0) {
+                    items.push({ productId: parseInt(productId), quantity, unitPrice, totalPrice: quantity * unitPrice });
+                } else if (productId && quantity <= 0) {
+                    hasInvalid = true;
+                }
+            });
+
+            if (items.length === 0) { showNotification('Please add at least one product', 'warning'); return; }
+            if (hasInvalid) { showNotification('Some products have 0 quantity!', 'warning'); return; }
+
+            const subtotal = parseFloat(document.getElementById('subtotal').textContent) || 0;
+            const discount = parseFloat(document.getElementById('discountAmount').textContent) || 0;
+            const total = parseFloat(document.getElementById('totalAmount').textContent) || 0;
+            const paid = parseFloat(document.getElementById('paidAmount').value) || 0;
+            const balance = parseFloat(document.getElementById('balanceAmount').textContent) || 0;
+            const invoiceNumber = 'INV-' + Date.now().toString().slice(-6);
+
+            const invoiceData = {
+                invoiceNumber,
+                customerName,
+                customerPhone,
+                subtotal,
+                tax: 0,
+                discount,
+                total,
+                paidAmount: paid,
+                balance,
+                items
+            };
+
+            try {
+                const saveBtn = document.getElementById('saveInvoice');
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
+
+                // ✅ Correct endpoint: /api/invoices (POST)
+                const response = await fetch(`${API}/invoices`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(invoiceData)
+                });
+
+                const result = await response.json();
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save me-1"></i>Save Invoice';
+
+                if (!response.ok) throw new Error(result.error || 'Failed to save invoice');
+
+                showNotification('✅ Invoice saved successfully!', 'success');
+                updatePrintHeader(invoiceData);
+                buildPrintProducts();
+
+                // refresh customer list
+                await fetchCustomers();
+
+                if (confirm('Invoice saved! Would you like to print it now?')) {
+                    window.print();
+                }
+            } catch (error) {
+                document.getElementById('saveInvoice').disabled = false;
+                document.getElementById('saveInvoice').innerHTML = '<i class="fas fa-save me-1"></i>Save Invoice';
+                console.error('Save error:', error);
+                showNotification('❌ Error: ' + error.message, 'error');
+            }
+        });
+
+        // ── Print Invoice (without save) ──
+        document.getElementById('printInvoice').addEventListener('click', function () {
+            const customerName = document.getElementById('customerName').value.trim() || 'Walk-in Customer';
+            const invoiceNumber = 'INV-' + Date.now().toString().slice(-6);
+            updatePrintHeader({
+                invoiceNumber,
+                customerName,
+                customerPhone: document.getElementById('customerPhone').value.trim(),
+                paidAmount: parseFloat(document.getElementById('paidAmount').value) || 0,
+                balance: parseFloat(document.getElementById('balanceAmount').textContent) || 0
+            });
+            buildPrintProducts();
+            window.print();
+        });
+
+        // ── Cancel Invoice ──
+        document.getElementById('cancelInvoice').addEventListener('click', function () {
+            if (confirm('Cancel invoice? All data will be cleared.')) {
+                document.getElementById('customerName').value = '';
+                document.getElementById('customerPhone').value = '';
+                document.getElementById('customerSearch').value = '';
+                document.getElementById('paidAmount').value = '0';
+                invoiceProductsContainer.innerHTML = '';
+                addProductRow();
+                calculateTotal();
+            }
+        });
+
+        // live update print on any input change
+        document.addEventListener('input', function () {
+            buildPrintProducts();
+        });
+    });
+    </script>
+</body>
+</html>
